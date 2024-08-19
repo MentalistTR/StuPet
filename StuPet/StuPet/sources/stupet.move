@@ -12,6 +12,7 @@ module stupet::stupet {
     const EmoldNotExist:u64 = 1;
     const EanuthorizeUser:u64 = 2;
     const EscoreNotEnough:u64 = 3;
+    const EnotOneDay: u64 = 4;
 
 //===========Const========
     const Type_cap:u64 = 1;
@@ -38,6 +39,7 @@ module stupet::stupet {
         grade_level: u64,
         birthdate: u64,
         url: Url,
+        now: u64,
         attributes: vector<String>
     }
 
@@ -122,13 +124,14 @@ module stupet::stupet {
     public fun uid_mut(pet: &mut Pet) : &mut UID { &mut pet.id }
 
     public entry fun create_pet(name:String, clock:&Clock, ctx:&mut TxContext) {
-    
+        
         let pet = Pet{
             id: object::new(ctx),
             name,
             grade_level:1,
             birthdate: sui::clock::timestamp_ms(clock),
             attributes: vector[],
+            now: clock.timestamp_ms() / 1000,
             url: url::new_unsafe_from_bytes(b"https://example.com/pet.jpg")
         };
 
@@ -156,7 +159,9 @@ module stupet::stupet {
     }
 
     //sign in +5 score and gradelevel
-    public entry fun update_pet(pet:&mut Pet, ctx:&mut TxContext) {
+    public entry fun update_pet(pet:&mut Pet, clock: &Clock, ctx:&mut TxContext) {
+        assert!(clock.timestamp_ms() / 1000 - pet.now >= 86400, EnotOneDay);
+        pet.now = clock.timestamp_ms() / 1000;
         pet.grade_level = pet.grade_level + 2;
     }
 
