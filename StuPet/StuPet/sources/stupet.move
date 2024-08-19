@@ -1,6 +1,6 @@
 module stupet::stupet {
-    use std::string::{String,utf8};
-    use sui::url::{Self,Url};
+    use std::string::{String, utf8};
+    use sui::url::{Self, Url};
     use sui::dynamic_object_field as dof;
     use sui::dynamic_field as df;
     use sui::clock::Clock;
@@ -86,7 +86,7 @@ module stupet::stupet {
     }
 
 //===========Item_functions==========
-    public entry fun mint_item(user: &mut User, types: u64, ctx:&mut TxContext){
+    public entry fun mint_item(types: u64, ctx:&mut TxContext){
         
         if(types == 1){
         let item = Item{
@@ -121,7 +121,8 @@ module stupet::stupet {
     //===========pet_functions==========
     public fun uid_mut(pet: &mut Pet) : &mut UID { &mut pet.id }
 
-    public entry fun create_pet(name:String,clock:&Clock,ctx:&mut TxContext){
+    public entry fun create_pet(name:String, clock:&Clock, ctx:&mut TxContext) {
+    
         let pet = Pet{
             id: object::new(ctx),
             name,
@@ -131,13 +132,13 @@ module stupet::stupet {
             url: url::new_unsafe_from_bytes(b"https://example.com/pet.jpg")
         };
 
-    emit(Event_petCreated{
-        id: object::id(&pet),
-        name,
-        owner: ctx.sender(),
-        });
+        emit(Event_petCreated{
+            id: object::id(&pet),
+            name,
+            owner: ctx.sender(),
+            });
 
-    transfer::transfer(pet,ctx.sender());
+        transfer::transfer(pet,ctx.sender());
     }
 
     //===========transfer==========
@@ -148,37 +149,37 @@ module stupet::stupet {
         dof::add(uid_mut, ItemKey{ mold: item.mold }, item)
     }
 
-    public fun remove_item_from_pet(pet:&mut Pet,mold:String):Item{
+    public fun remove_item_from_pet(pet:&mut Pet,mold:String) : Item {
         let uid_mut = uid_mut(pet);
         assert!(!dof::exists_(uid_mut, ItemKey {mold}), EmoldNotExist);
         dof::remove(uid_mut,ItemKey { mold })
     }
 
     //sign in +5 score and gradelevel
-    public entry fun update_pet(pet:&mut Pet,ctx:&mut TxContext){
+    public entry fun update_pet(pet:&mut Pet, ctx:&mut TxContext) {
         pet.grade_level = pet.grade_level + 2;
     }
 
     //===========read_item==========
-    public fun read_item_name(item: &Item) :String {
+    public fun read_item_name(item: &Item) : String {
         item.name 
     }
-    public fun read_mold(item: &Item) :String {
+    public fun read_mold(item: &Item) : String {
         item.mold 
     }
 
     //===========read_pet==========
-    public fun read_name(pet: &Pet) :String {
+    public fun read_name(pet: &Pet) : String {
         pet.name 
     }
-    public fun read_grade_level(pet: &Pet) :u64 {
+    public fun read_grade_level(pet: &Pet) : u64 {
         pet.grade_level 
     }
-    public fun read_birthdate(pet: &Pet) :u64 {
+    public fun read_birthdate(pet: &Pet) : u64 {
         pet.birthdate 
     }
     
-    public fun read_attributes(pet: &Pet) :vector<String> {
+    public fun read_attributes(pet: &Pet) : vector<String> {
         pet.attributes 
     }
 }
