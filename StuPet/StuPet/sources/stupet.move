@@ -50,7 +50,7 @@ module stupet::stupet {
     public struct ItemKey has copy, store, drop { mold: String }
 
 //===========Event==========
-     public struct Event_petCreated has copy,drop{
+    public struct Event_petCreated has copy,drop{
         id: ID,
         name: String,
         owner: address,
@@ -63,8 +63,7 @@ module stupet::stupet {
     }
 //===========init==========
     fun init(ctx:&mut TxContext){
-        let admin_cap = AdminCap{id:object::new(ctx)};
-        transfer::transfer(admin_cap,ctx.sender());
+       transfer::transfer(AdminCap{id: object::new(ctx)}, ctx.sender());
     }
 
 //==============user_functions==========
